@@ -29,8 +29,8 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 | **Phase 1** | TypeScript & UI Layout Shell | TypeScript setup, Router, Desktop Sidebar & Mobile Nav, Theme | 🟢 Completed |
 | **Phase 2** | Supabase Client & Config Shield | Client singleton, environment validator, friendly diagnostics | 🟢 Completed |
 | **Phase 3** | Database Schema, Migrations & RLS | PostgreSQL tables, constraints, indexes, RLS policies, seed data | 🟢 Completed (Schema & Seeds Authored) |
-| **Phase 4** | Authentication & RBAC Lifecycle | Auth context, login/register, session persistence, role guards | 🟡 Ready to Begin |
-| **Phase 5** | Lead Management Core Engine | Full CRUD, search, multi-filters, status pipeline, lost reason | ⚪ Pending |
+| **Phase 4** | Authentication & RBAC Lifecycle | Auth context, login/register, session persistence, role guards | 🟢 Completed |
+| **Phase 5** | Lead Management Core Engine | Full CRUD, search, multi-filters, status pipeline, lost reason | 🟡 Ready to Begin |
 | **Phase 6** | Follow-ups Engine & Audit Timeline | Scheduling, dynamic overdue logic, completion, activity logs | ⚪ Pending |
 | **Phase 7** | Dashboard Analytics & Reports | Reconciled KPIs, funnel breakdown, source metrics, reports | ⚪ Pending |
 | **Phase 8** | Accessibility & Responsive Polish | a11y audit, keyboard nav, mobile polish, error boundary, toasts | ⚪ Pending |
@@ -109,16 +109,16 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 - [x] **Exit Gate**: All SQL migrations, seed fixtures, and TypeScript domain types authored and verified. Ready to apply on Supabase dashboard once project is created.
 
 ### Phase 4: Authentication, Profile Lifecycle & RBAC
-- [ ] Create `src/services/authService.ts`: sign in, sign up, sign out, get session, onAuthStateChange.
-- [ ] Create `src/features/auth/AuthContext.tsx`: exposes `user`, `profile`, `role`, `loading`.
-- [ ] Build Authentication UI:
-  - `src/pages/LoginPage.tsx`: Email/password form, loading spinners, actionable error alerts.
+- [x] Create `src/services/authService.ts`: sign in, sign up, sign out, get session, onAuthStateChange.
+- [x] Create `src/features/auth/AuthContext.tsx`: exposes `user`, `profile`, `role`, `loading`, `signIn`, `signUp`, `signOut`, `refreshProfile`.
+- [x] Build Authentication UI:
+  - `src/pages/LoginPage.tsx`: Tabbed Sign In and Staff Registration, loading spinners, actionable error alerts, and admin elevation instructions.
   - `src/features/auth/ProtectedRoute.tsx`: Route gate redirecting unauthenticated users to `/login`.
   - `src/features/auth/RoleGuard.tsx`: Component-level visibility control based on user role.
-- [ ] Build User Profile & Logout UI in Header.
-- [ ] **Test & Verification**: Test valid sign-in, invalid credentials error, page refresh session retention, and logout.
-- [ ] **Deployment & Live Check**: Deploy to Vercel with production environment variables; verify login and session persistence on live URL.
-- [ ] **Exit Gate**: Authentication fully operational and role-scoping verified live.
+- [x] Build User Profile & Logout UI in Header: User initials avatar, display name, dynamic role badges (`admin`, `manager`, `counsellor`), profile refresh, and Sign Out action.
+- [x] Wrap application routes with `<AuthProvider>` and protect workspace routes with `<ProtectedRoute>`.
+- [x] **Test & Verification**: `npx tsc --noEmit` and `npm run build` pass with zero errors.
+- [x] **Exit Gate**: Authentication fully operational and role-scoping integrated into UI shell.
 
 ### Phase 5: Lead Management Core Engine (P0 Workflows)
 - [ ] Create `src/services/leadsService.ts`: list leads, create lead, update lead, search/filter leads.

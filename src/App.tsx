@@ -1,5 +1,11 @@
+// ==============================================================================
+// BrightPath CRM — Main Application Router & Provider Tree
+// ==============================================================================
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './features/auth/AuthContext';
+import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { LeadsPage } from './pages/LeadsPage';
@@ -11,22 +17,31 @@ import { NotFoundPage } from './pages/NotFoundPage';
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Full screen auth route */}
-        <Route path="/login" element={<LoginPage />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Full screen public auth route */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Main application workspace layout */}
-        <Route path="/" element={<AppLayout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="leads" element={<LeadsPage />} />
-          <Route path="leads/:id" element={<LeadDetailPage />} />
-          <Route path="followups" element={<FollowUpsPage />} />
-          <Route path="reports" element={<ReportsPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          {/* Protected CRM workspace routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<DashboardPage />} />
+            <Route path="leads" element={<LeadsPage />} />
+            <Route path="leads/:id" element={<LeadDetailPage />} />
+            <Route path="followups" element={<FollowUpsPage />} />
+            <Route path="reports" element={<ReportsPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 
