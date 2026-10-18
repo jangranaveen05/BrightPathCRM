@@ -41,6 +41,29 @@ export const LoginPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate, location]);
 
+  const handleOneClickAdminLogin = async () => {
+    setIsSignUp(false);
+    setEmail('brightpath.crm.test@gmail.com');
+    setPassword('Password123!');
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await signIn({
+        email: 'brightpath.crm.test@gmail.com',
+        password: 'Password123!',
+      });
+      if (error) {
+        setErrorMsg(error.message);
+      }
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Sign in failed');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -68,7 +91,14 @@ export const LoginPage: React.FC = () => {
         });
 
         if (error) {
-          setErrorMsg(error.message);
+          const lower = error.message.toLowerCase();
+          if (lower.includes('rate limit') || lower.includes('rate_limit')) {
+            setErrorMsg(
+              'Supabase email confirmation rate limit reached (free tier allows 3 emails/hour). Click the button below to sign in immediately using the active Admin account.'
+            );
+          } else {
+            setErrorMsg(error.message);
+          }
         } else {
           // If Supabase has email confirmation enabled
           if (user && !user.confirmed_at && user.identities?.length) {
@@ -217,10 +247,7 @@ export const LoginPage: React.FC = () => {
         {errorMsg && (
           <div
             style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '10px',
-              padding: '12px',
+              padding: '12px 14px',
               borderRadius: 'var(--radius-md)',
               backgroundColor: '#fef2f2',
               border: '1px solid #fecaca',
@@ -229,8 +256,34 @@ export const LoginPage: React.FC = () => {
               marginBottom: '16px',
             }}
           >
-            <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-            <span>{errorMsg}</span>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div style={{ flex: 1 }}>
+                <p style={{ lineHeight: 1.45 }}>{errorMsg}</p>
+                {errorMsg.toLowerCase().includes('rate limit') && (
+                  <button
+                    type="button"
+                    onClick={handleOneClickAdminLogin}
+                    disabled={isSubmitting}
+                    className="btn btn-sm"
+                    style={{
+                      marginTop: '10px',
+                      backgroundColor: 'var(--primary-600)',
+                      color: '#ffffff',
+                      border: 'none',
+                      width: '100%',
+                      justifyContent: 'center',
+                      fontWeight: 600,
+                      padding: '8px',
+                      borderRadius: 'var(--radius-md)',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                  >
+                    🚀 1-Click Sign In as Admin Now
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -251,6 +304,32 @@ export const LoginPage: React.FC = () => {
           >
             <CheckCircle2 size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
             <span>{successMsg}</span>
+          </div>
+        )}
+
+        {/* Register Tab Free-Tier Helper Notice */}
+        {isSignUp && (
+          <div
+            style={{
+              padding: '10px 12px',
+              borderRadius: 'var(--radius-md)',
+              backgroundColor: '#f0f9ff',
+              border: '1px solid #bae6fd',
+              color: '#0369a1',
+              fontSize: '0.75rem',
+              marginBottom: '14px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+              <Info size={14} />
+              <span>Supabase Free-Tier Note</span>
+            </div>
+            <p style={{ lineHeight: 1.4, margin: 0 }}>
+              Supabase free tier rate-limits confirmation emails to 3 per hour. To test immediately without email confirmation, use the verified admin account below.
+            </p>
           </div>
         )}
 
@@ -383,29 +462,26 @@ export const LoginPage: React.FC = () => {
             )}
           </button>
 
-          {!isSignUp && (
-            <button
-              type="button"
-              onClick={() => {
-                setEmail('brightpath.crm.test@gmail.com');
-                setPassword('Password123!');
-                setErrorMsg(null);
-              }}
-              className="btn btn-outline btn-sm"
-              style={{
-                width: '100%',
-                padding: '8px',
-                fontSize: '0.8125rem',
-                color: 'var(--primary-700)',
-                backgroundColor: 'var(--primary-50)',
-                borderColor: 'var(--primary-200)',
-                justifyContent: 'center',
-                fontWeight: 600,
-              }}
-            >
-              ⚡ Fill Active Admin Credentials
-            </button>
-          )}
+          {/* 1-Click Instant Sign In as Admin */}
+          <button
+            type="button"
+            onClick={handleOneClickAdminLogin}
+            disabled={isSubmitting || !isSupabaseConfigured}
+            className="btn btn-outline btn-sm"
+            style={{
+              width: '100%',
+              padding: '9px 12px',
+              fontSize: '0.8125rem',
+              color: 'var(--primary-700)',
+              backgroundColor: 'var(--primary-50)',
+              borderColor: 'var(--primary-200)',
+              justifyContent: 'center',
+              fontWeight: 600,
+              gap: '6px',
+            }}
+          >
+            <span>🚀 1-Click Instant Sign In as Admin</span>
+          </button>
         </form>
 
         {/* Informational Guidance Box */}

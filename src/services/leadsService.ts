@@ -58,8 +58,12 @@ export const leadsService = {
 
     // Apply text search across name, phone, email, and course interest
     if (filters?.search && filters.search.trim()) {
-      const term = `%${filters.search.trim()}%`;
-      query = query.or(`full_name.ilike.${term},phone.ilike.${term},email.ilike.${term},course_interest.ilike.${term}`);
+      // Strip characters that break PostgREST logic-tree grammar (, () " :)
+      const sanitized = filters.search.trim().replace(/[,()":]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (sanitized) {
+        const term = `%${sanitized}%`;
+        query = query.or(`full_name.ilike.${term},phone.ilike.${term},email.ilike.${term},course_interest.ilike.${term}`);
+      }
     }
 
     const { data, error } = await query;
@@ -167,9 +171,15 @@ export const leadsService = {
     if (input.phone !== undefined) updatePayload.phone = input.phone.trim();
     if (input.course_interest !== undefined) updatePayload.course_interest = input.course_interest.trim();
     if (input.source !== undefined) updatePayload.source = input.source;
-    if (input.status !== undefined) updatePayload.status = input.status;
+    if (input.status !== undefined) {
+      updatePayload.status = input.status;
+      // If transitioning away from Lost and no new reason provided, auto-clear lost_reason
+      if (input.status !== 'Lost' && input.lost_reason === undefined) {
+        updatePayload.lost_reason = null;
+      }
+    }
     if (input.lost_reason !== undefined) updatePayload.lost_reason = input.lost_reason;
-    if (input.assigned_to !== undefined) updatePayload.assigned_to = input.assigned_to;
+    if (input.assigned_to !== undefined) updatePayload.assigned_to = input.assigned_to ? input.assigned_to : null;
     if (input.notes !== undefined) updatePayload.notes = input.notes ? input.notes.trim() : null;
 
     const { data, error } = await supabase
