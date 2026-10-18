@@ -251,7 +251,7 @@ export interface Database {
       };
       promote_user_to_admin: {
         Args: { target_email: string };
-        Returns: void;
+        Returns: string;
       };
     };
   };

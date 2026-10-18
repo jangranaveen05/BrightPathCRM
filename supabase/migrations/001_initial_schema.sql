@@ -144,13 +144,37 @@ RETURNS TEXT AS $$
   SELECT role FROM public.profiles WHERE id = auth.uid();
 $$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
 
--- 5.3 Helper procedure to promote user to Admin
+-- 5.3 Helper procedure to promote user to Admin and auto-confirm email
 CREATE OR REPLACE FUNCTION public.promote_user_to_admin(target_email TEXT)
-RETURNS VOID AS $$
+RETURNS TEXT AS $$
+DECLARE
+  v_user_id UUID;
+  v_user_name TEXT;
 BEGIN
-  UPDATE public.profiles
-  SET role = 'admin'
-  WHERE id = (SELECT id FROM auth.users WHERE email = target_email);
+  SELECT id INTO v_user_id 
+  FROM auth.users 
+  WHERE lower(email) = lower(trim(target_email));
+  
+  IF v_user_id IS NULL THEN
+    RETURN 'Error: No registered user found with email ' || target_email || '. Please sign up first.';
+  END IF;
+
+  -- 1. Auto-confirm user email in auth.users so they can log in without email confirmation barrier
+  UPDATE auth.users
+  SET email_confirmed_at = COALESCE(email_confirmed_at, NOW())
+  WHERE id = v_user_id;
+
+  -- 2. Upsert public.profiles row with role = 'admin'
+  SELECT COALESCE(raw_user_meta_data->>'full_name', split_part(target_email, '@', 1))
+  INTO v_user_name
+  FROM auth.users
+  WHERE id = v_user_id;
+
+  INSERT INTO public.profiles (id, full_name, role)
+  VALUES (v_user_id, COALESCE(v_user_name, 'Admin User'), 'admin')
+  ON CONFLICT (id) DO UPDATE SET role = 'admin';
+
+  RETURN 'Success: User ' || target_email || ' has been confirmed and elevated to Admin role.';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
@@ -158,7 +182,18 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 CREATE OR REPLACE FUNCTION public.prevent_role_escalation()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.role <> OLD.role AND public.get_current_user_role() NOT IN ('admin') THEN
+  -- Allow direct postgres/service_role operations (such as Supabase SQL Editor, migrations, or internal triggers)
+  IF current_user IN ('postgres', 'service_role', 'supabase_admin') OR session_user IN ('postgres', 'service_role', 'supabase_admin') THEN
+    RETURN NEW;
+  END IF;
+
+  -- Allow if auth context is not set (e.g. running from direct SQL console or internal database triggers)
+  IF auth.uid() IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  -- For client requests through API (authenticated users): only admin can change role
+  IF NEW.role <> OLD.role AND COALESCE(public.get_current_user_role(), '') <> 'admin' THEN
     RAISE EXCEPTION 'Access denied: Only administrators can modify profile roles.';
   END IF;
   RETURN NEW;

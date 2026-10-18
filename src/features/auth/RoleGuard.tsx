@@ -4,7 +4,7 @@
 // ==============================================================================
 
 import React from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 import type { UserRole } from '../../types/database';
 
 interface RoleGuardProps {

@@ -17,7 +17,7 @@ import {
   Info,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../features/auth/AuthContext';
+import { useAuth } from '../features/auth/useAuth';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
 
 export const LoginPage: React.FC = () => {

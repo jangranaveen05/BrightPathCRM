@@ -15,7 +15,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { ConnectionStatusPill } from '../common/ConnectionStatusPill';
-import { useAuth } from '../../features/auth/AuthContext';
+import { useAuth } from '../../features/auth/useAuth';
 import type { UserRole } from '../../types/database';
 
 interface HeaderProps {

@@ -1,34 +1,20 @@
 // ==============================================================================
-// BrightPath CRM — AuthContext & useAuth Hook
+// BrightPath CRM — AuthContext & Provider Tree
 // Global authentication provider, session manager, and RBAC role provider
 // ==============================================================================
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { authService, SignInCredentials, SignUpCredentials } from '../../services/authService';
 import type { Profile, UserRole } from '../../types/database';
 import { isSupabaseConfigured } from '../../lib/supabaseClient';
-
-interface AuthContextValue {
-  user: User | null;
-  profile: Profile | null;
-  role: UserRole | null;
-  session: Session | null;
-  loading: boolean;
-  isAuthenticated: boolean;
-  signIn: (credentials: SignInCredentials) => Promise<{ error: Error | null }>;
-  signUp: (credentials: SignUpCredentials) => Promise<{ error: Error | null; user?: User | null }>;
-  signOut: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+import { AuthContext, AuthContextValue } from './authContextDef';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(() => isSupabaseConfigured);
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
@@ -49,7 +35,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Initial session hydration and auth state subscription
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      setLoading(false);
       return;
     }
 
@@ -149,12 +134,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }), [user, profile, role, session, loading, signIn, signUp, signOut, refreshProfile]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = (): AuthContextValue => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
