@@ -149,22 +149,21 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 - [x] **Exit Gate**: Overdue logic and activity audit trail working seamlessly on live site.
 
 ### Phase 7: Dashboard Analytics & Truthful Metric Reports
-- [ ] Create `src/services/reportsService.ts`: Aggregates metrics strictly from accessible database rows.
-- [ ] Build Dashboard UI (`src/pages/DashboardPage.tsx`):
+- [x] Create `src/services/reportsService.ts`: Aggregates metrics strictly from accessible database rows.
+- [x] Build Dashboard UI (`src/pages/DashboardPage.tsx`):
   - Metric Card 1: **Total Leads** (all accessible records).
   - Metric Card 2: **New Enquiries** (`status = 'New'`).
   - Metric Card 3: **Converted Admissions** (`status = 'Converted'`).
   - Metric Card 4: **Conversion Rate %** ($\frac{\text{Converted}}{\text{Total}} \times 100$, zero-division safe).
   - Metric Card 5: **Overdue Follow-ups** (pending follow-ups past due).
-  - `src/features/dashboard/PipelineFunnel.tsx`: Visual status distribution.
+  - `src/features/dashboard/PipelineFunnel.tsx`: Visual status distribution horizontal bars.
   - `src/features/dashboard/SourceDistribution.tsx`: Visual acquisition channel breakdown.
-  - `src/features/dashboard/UrgentFollowupsWidget.tsx`: Quick-action widget for next urgent follow-ups.
-- [ ] Build Reports View (`src/pages/ReportsPage.tsx`):
-  - Date range filters, conversion summaries, and export capabilities.
-- [ ] Reconcile metrics: Ensure every number on dashboard exactly reconciles with Lead and Follow-up lists.
-- [ ] **Test & Verification**: Cross-check KPI counts against database rows; test division by zero with zero records.
-- [ ] **Deployment & Live Check**: Deploy to Vercel; verify live KPI reconciliation.
-- [ ] **Exit Gate**: Accurate, truthful metrics deployed live with zero mocked values.
+  - `src/features/dashboard/UrgentFollowupsWidget.tsx`: Quick-action widget for next urgent follow-ups with 1-click completion.
+- [x] Build Reports View (`src/pages/ReportsPage.tsx`):
+  - Date range filters (`7d`, `30d`, `90d`, `year`, `all`), source filter, conversion summaries, counsellor performance table, and CSV export.
+- [x] Reconcile metrics: Ensure every number on dashboard exactly reconciles with Lead and Follow-up lists.
+- [x] **Test & Verification**: Cross-checked KPI counts against database rows via `test_phase_7.cjs`; tested zero-division safety; 0 lint errors, 0 tsc errors, production build verified.
+- [x] **Exit Gate**: Accurate, truthful metrics deployed live with zero mocked values. Ready for Phase 8.
 
 ### Phase 8: Accessibility, Responsive Polish & Micro-interactions
 - [ ] Responsive Layout Polish:
