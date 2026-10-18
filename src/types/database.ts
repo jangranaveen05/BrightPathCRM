@@ -37,15 +37,15 @@ export type ActivityType =
 // Core Table Models
 // ------------------------------------------------------------------------------
 
-export interface Profile {
+export type Profile = {
   id: string; // Foreign key to auth.users.id
   full_name: string;
   role: UserRole;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface Lead {
+export type Lead = {
   id: string;
   full_name: string;
   email: string | null;
@@ -59,9 +59,9 @@ export interface Lead {
   notes: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface FollowUp {
+export type FollowUp = {
   id: string;
   lead_id: string;
   assigned_to: string | null;
@@ -71,9 +71,9 @@ export interface FollowUp {
   completed_at: string | null;
   created_by: string | null;
   created_at: string;
-}
+};
 
-export interface Activity {
+export type Activity = {
   id: string;
   lead_id: string;
   actor_id: string | null;
@@ -81,7 +81,7 @@ export interface Activity {
   description: string;
   metadata: Record<string, unknown> | null;
   created_at: string;
-}
+};
 
 // ------------------------------------------------------------------------------
 // Joined / Enriched Models for UI Consumption
@@ -147,7 +147,7 @@ export interface CreateActivityInput {
 // Supabase Database Mapping Interface
 // ------------------------------------------------------------------------------
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       profiles: {
@@ -165,6 +165,7 @@ export interface Database {
           role?: UserRole;
           updated_at?: string;
         };
+        Relationships: [];
       };
       leads: {
         Row: Lead;
@@ -197,6 +198,7 @@ export interface Database {
           notes?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       follow_ups: {
         Row: FollowUp;
@@ -221,6 +223,7 @@ export interface Database {
           completed_at?: string | null;
           created_by?: string | null;
         };
+        Relationships: [];
       };
       activities: {
         Row: Activity;
@@ -241,18 +244,27 @@ export interface Database {
           description?: string;
           metadata?: Record<string, unknown> | null;
         };
+        Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      [_ in never]: never;
+    };
     Functions: {
       get_current_user_role: {
-        Args: Record<PropertyKey, never>;
+        Args: Record<string, never>;
         Returns: string;
       };
       promote_user_to_admin: {
         Args: { target_email: string };
         Returns: string;
       };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 }

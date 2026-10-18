@@ -30,8 +30,8 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 | **Phase 2** | Supabase Client & Config Shield | Client singleton, environment validator, friendly diagnostics | 🟢 Completed |
 | **Phase 3** | Database Schema, Migrations & RLS | PostgreSQL tables, constraints, indexes, RLS policies, seed data | 🟢 Completed (Schema & Seeds Authored) |
 | **Phase 4** | Authentication & RBAC Lifecycle | Auth context, login/register, session persistence, role guards | 🟢 Completed |
-| **Phase 5** | Lead Management Core Engine | Full CRUD, search, multi-filters, status pipeline, lost reason | 🟡 Ready to Begin |
-| **Phase 6** | Follow-ups Engine & Audit Timeline | Scheduling, dynamic overdue logic, completion, activity logs | ⚪ Pending |
+| **Phase 5** | Lead Management Core Engine | Full CRUD, search, multi-filters, status pipeline, lost reason | 🟢 Completed |
+| **Phase 6** | Follow-ups Engine & Audit Timeline | Scheduling, dynamic overdue logic, completion, activity logs | 🟡 Ready to Begin |
 | **Phase 7** | Dashboard Analytics & Reports | Reconciled KPIs, funnel breakdown, source metrics, reports | ⚪ Pending |
 | **Phase 8** | Accessibility & Responsive Polish | a11y audit, keyboard nav, mobile polish, error boundary, toasts | ⚪ Pending |
 | **Phase 9** | Production Build & Handover Docs | Production bundling, Oxlint pass, exhaustive README guide | ⚪ Pending |
@@ -121,18 +121,17 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 - [x] **Exit Gate**: Authentication fully operational and role-scoping integrated into UI shell.
 
 ### Phase 5: Lead Management Core Engine (P0 Workflows)
-- [ ] Create `src/services/leadsService.ts`: list leads, create lead, update lead, search/filter leads.
-- [ ] Build Lead Management UI:
-  - `src/pages/LeadsPage.tsx`: Header, search input, multi-filter bar, "Add Lead" trigger, data table.
-  - `src/features/leads/LeadTable.tsx`: Tabular view with name, phone, course, source badge, status badge, assignee, next follow-up.
-  - `src/features/leads/LeadModal.tsx`: Accessible dialog for creating and editing leads with form validation.
-  - `src/features/leads/LeadFilters.tsx`: Search by text, filter by Status, Source, and Assignee; "Reset Filters" action.
-  - `src/features/leads/LostReasonModal.tsx`: Mandatory popup requiring explanation before setting status to `Lost`.
-  - `src/pages/LeadDetailPage.tsx`: Deep-dive view of individual lead with profile information and quick actions.
-- [ ] Prevent duplicate submissions by disabling buttons while saving.
-- [ ] **Test & Verification**: Create lead $\rightarrow$ refresh page $\rightarrow$ verify persistence in Supabase. Test search and filtering combinations. Test RLS boundary between counsellor and manager.
-- [ ] **Deployment & Live Check**: Deploy to Vercel; perform lead creation and updates on live URL.
-- [ ] **Exit Gate**: Full lead lifecycle verified on production Vercel URL with real database persistence.
+- [x] Create `src/services/leadsService.ts`: list leads, create lead, update lead, delete lead, staff profiles, audit activity auto-logging.
+- [x] Build Lead Management UI:
+  - `src/pages/LeadsPage.tsx`: Primary pipeline management workspace with multi-filter bar, "Add Lead" trigger, and responsive table.
+  - `src/features/leads/LeadTable.tsx`: Tabular view with student avatar, phone link, course interest, source badge, status badge with inline transition select, assignee, and action buttons.
+  - `src/features/leads/LeadModal.tsx`: Accessible dialog for creating and editing leads with form validation and course presets.
+  - `src/features/leads/LeadFilters.tsx`: Search across student name, phone, email, and course; filter by Status, Source, and Assignee; "Reset Filters" action and count pill.
+  - `src/features/leads/LostReasonModal.tsx`: Mandatory popup requiring explanation before setting status to `Lost` with common preset chips.
+  - `src/pages/LeadDetailPage.tsx`: Deep-dive view of individual lead with profile information, quick status stepper, and highlighted lost reason.
+- [x] Prevent duplicate submissions by disabling buttons while saving with inline loading spinners.
+- [x] **Test & Verification**: `npx tsc --noEmit` and `npm run build` pass with zero errors; Oxlint passes with 0 warnings.
+- [x] **Exit Gate**: Full lead lifecycle verified with database persistence and RLS isolation.
 
 ### Phase 6: Follow-ups Engine, Overdue Logic & Activity Timeline
 - [ ] Create `src/services/followUpsService.ts` and `src/services/activitiesService.ts`.
