@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '../types/database';
 
 const rawUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
 const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
@@ -73,7 +74,7 @@ export function getSupabaseConfigStatus(): SupabaseConfigStatus {
 const clientUrl = isSupabaseConfigured ? rawUrl! : 'https://unconfigured.supabase.co';
 const clientKey = isSupabaseConfigured ? rawKey! : 'unconfigured-anon-key';
 
-export const supabase: SupabaseClient = createClient(clientUrl, clientKey, {
+export const supabase: SupabaseClient<Database> = createClient<Database>(clientUrl, clientKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,

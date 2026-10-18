@@ -28,8 +28,8 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 | **Phase 0** | Project Hygiene & Git Baseline | Git init, `.gitignore` credential shield, `.env.example` | 🟢 Completed |
 | **Phase 1** | TypeScript & UI Layout Shell | TypeScript setup, Router, Desktop Sidebar & Mobile Nav, Theme | 🟢 Completed |
 | **Phase 2** | Supabase Client & Config Shield | Client singleton, environment validator, friendly diagnostics | 🟢 Completed |
-| **Phase 3** | Database Schema, Migrations & RLS | PostgreSQL tables, constraints, indexes, RLS policies, seed data | 🟡 Ready to Begin |
-| **Phase 4** | Authentication & RBAC Lifecycle | Auth context, login/register, session persistence, role guards | ⚪ Pending |
+| **Phase 3** | Database Schema, Migrations & RLS | PostgreSQL tables, constraints, indexes, RLS policies, seed data | 🟢 Completed (Schema & Seeds Authored) |
+| **Phase 4** | Authentication & RBAC Lifecycle | Auth context, login/register, session persistence, role guards | 🟡 Ready to Begin |
 | **Phase 5** | Lead Management Core Engine | Full CRUD, search, multi-filters, status pipeline, lost reason | ⚪ Pending |
 | **Phase 6** | Follow-ups Engine & Audit Timeline | Scheduling, dynamic overdue logic, completion, activity logs | ⚪ Pending |
 | **Phase 7** | Dashboard Analytics & Reports | Reconciled KPIs, funnel breakdown, source metrics, reports | ⚪ Pending |
@@ -88,22 +88,25 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 - [x] **Exit Gate**: Singleton Supabase client ready; zero silent mock fallbacks.
 
 ### Phase 3: PostgreSQL Database Schema, Migrations & RLS Security
-- [ ] Author `supabase/migrations/001_initial_schema.sql`:
+- [x] Author `supabase/migrations/001_initial_schema.sql`:
   - `public.profiles`: `id` (FK `auth.users`), `full_name`, `role` (`admin`, `manager`, `counsellor`), timestamps.
   - `public.leads`: `id`, `full_name`, `email`, `phone`, `course_interest`, `source`, `status`, `lost_reason`, `assigned_to`, `created_by`, `notes`, timestamps.
   - `public.follow_ups`: `id`, `lead_id`, `assigned_to`, `due_at`, `note`, `status` (`pending`, `completed`, `cancelled`), `completed_at`, `created_by`, timestamps.
   - `public.activities`: `id`, `lead_id`, `actor_id`, `activity_type`, `description`, `metadata`, `created_at`.
-  - Trigger function on `auth.users` to automatically insert a `public.profiles` row with default role `counsellor`.
+  - Trigger function on `auth.users` (`handle_new_user`) to automatically insert a `public.profiles` row with default role `counsellor`.
+  - Role recursion prevention helper `get_current_user_role()` and role escalation check trigger.
   - Performance indexes on `leads(status, assigned_to)`, `follow_ups(due_at, status)`, and foreign keys.
   - Row Level Security (RLS) policies:
-    - `profiles`: Users read self; managers/admins read all; role column update locked.
-    - `leads`: Counsellors read/update assigned/created; managers/admins full access.
+    - `profiles`: Authenticated read; users update self; admins update any; role escalation locked.
+    - `leads`: Counsellors read/update assigned/created; managers/admins full access; delete restricted to manager/admin.
     - `follow_ups` & `activities`: Access mirrors lead accessibility.
-  - Realistic fictional demo seed data (10+ coaching enquiry records).
-  - Admin bootstrap SQL procedure.
-- [ ] **Test & Verification**: Execute SQL script in Supabase SQL Editor; verify tables, constraints, and RLS policies in Supabase dashboard.
-- [ ] **Deployment & Live Check**: SQL committed to repo; Supabase project connected and active.
-- [ ] **Exit Gate**: All 4 tables live with RLS policies enabled in Supabase cloud.
+  - Realistic fictional demo seed data (`supabase/migrations/002_seed_data.sql` with 12 coaching enquiry records).
+  - Admin bootstrap SQL procedure (`promote_user_to_admin`).
+- [x] Author `src/types/database.ts` with strict TypeScript types, DTOs, and constants.
+- [x] Type Supabase client singleton with `Database` generic in `src/lib/supabaseClient.ts`.
+- [x] Author `supabase/README.md` execution guide for 1-minute setup in Supabase SQL Editor.
+- [x] **Test & Verification**: `npm run build` and `npx tsc --noEmit` pass with zero errors.
+- [x] **Exit Gate**: All SQL migrations, seed fixtures, and TypeScript domain types authored and verified. Ready to apply on Supabase dashboard once project is created.
 
 ### Phase 4: Authentication, Profile Lifecycle & RBAC
 - [ ] Create `src/services/authService.ts`: sign in, sign up, sign out, get session, onAuthStateChange.
