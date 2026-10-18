@@ -25,10 +25,10 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 
 | Phase | Title | Focus Area | Status |
 | :---: | :--- | :--- | :---: |
-| **Phase 0** | Project Hygiene & Git Baseline | Git init, `.gitignore` credential shield, `.env.example` | 🟡 Ready to Begin |
-| **Phase 1** | TypeScript & UI Layout Shell | TypeScript setup, Router, Desktop Sidebar & Mobile Nav, Theme | ⚪ Pending |
-| **Phase 2** | Supabase Client & Config Shield | Client singleton, environment validator, friendly diagnostics | ⚪ Pending |
-| **Phase 3** | Database Schema, Migrations & RLS | PostgreSQL tables, constraints, indexes, RLS policies, seed data | ⚪ Pending |
+| **Phase 0** | Project Hygiene & Git Baseline | Git init, `.gitignore` credential shield, `.env.example` | 🟢 Completed |
+| **Phase 1** | TypeScript & UI Layout Shell | TypeScript setup, Router, Desktop Sidebar & Mobile Nav, Theme | 🟢 Completed |
+| **Phase 2** | Supabase Client & Config Shield | Client singleton, environment validator, friendly diagnostics | 🟢 Completed |
+| **Phase 3** | Database Schema, Migrations & RLS | PostgreSQL tables, constraints, indexes, RLS policies, seed data | 🟡 Ready to Begin |
 | **Phase 4** | Authentication & RBAC Lifecycle | Auth context, login/register, session persistence, role guards | ⚪ Pending |
 | **Phase 5** | Lead Management Core Engine | Full CRUD, search, multi-filters, status pipeline, lost reason | ⚪ Pending |
 | **Phase 6** | Follow-ups Engine & Audit Timeline | Scheduling, dynamic overdue logic, completion, activity logs | ⚪ Pending |
@@ -42,27 +42,27 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 ## 3. Granular Phase Breakdown
 
 ### Phase 0: Project Hygiene & Git Baseline
-- [ ] Initialize Git repository (`git init`, set branch `main`).
-- [ ] Protect credentials in `.gitignore` by explicitly ignoring `.env`, `.env.local`, `.env.*.local`.
-- [ ] Create `.env.example` template with placeholder variable names.
-- [ ] Audit untracked files to ensure zero secrets or build artifacts are committed.
-- [ ] **Test & Verification**: Run `git status` to verify `.env` is ignored.
-- [ ] **Deployment & Live Check**: Initial commit (`git commit -m "chore: project baseline and gitignore"`).
-- [ ] **Exit Gate**: Repository cleanly initialized with zero credential exposure risks.
+- [x] Initialize Git repository (`git init`, set branch `main`).
+- [x] Protect credentials in `.gitignore` by explicitly ignoring `.env`, `.env.local`, `.env.*.local`.
+- [x] Create `.env.example` template with placeholder variable names.
+- [x] Audit untracked files to ensure zero secrets or build artifacts are committed.
+- [x] **Test & Verification**: Run `git status` to verify `.env` is ignored.
+- [x] **Deployment & Live Check**: Initial commit (`git commit -m "first commit: project baseline, plan.md, and gitignore safety"`).
+- [x] **Exit Gate**: Repository cleanly initialized with zero credential exposure risks.
 
 ### Phase 1: TypeScript Migration, Routing & UI Layout Shell
-- [ ] Install dependencies: `typescript`, `@types/node`, `@types/react`, `@types/react-dom`, `react-router-dom`, `lucide-react`.
-- [ ] Create `tsconfig.json` and `tsconfig.node.json`.
-- [ ] Convert `src/main.jsx` to `src/main.tsx`, and `src/App.jsx` to `src/App.tsx`.
-- [ ] Establish Navy SaaS Design System:
+- [x] Install dependencies: `typescript`, `@types/node`, `@types/react`, `@types/react-dom`, `react-router-dom`, `lucide-react`.
+- [x] Create `tsconfig.json` and `tsconfig.node.json`.
+- [x] Convert `src/main.jsx` to `src/main.tsx`, and `src/App.jsx` to `src/App.tsx`.
+- [x] Establish Navy SaaS Design System:
   - Custom navy & neutral color palette (`#0f172a`, `#1e293b`, `#3b82f6`, `#f8fafc`).
   - Professional typography, button variants, input fields, and status badges.
-- [ ] Build Core Layout Shell:
+- [x] Build Core Layout Shell:
   - `src/components/layout/Sidebar.tsx`: Desktop sidebar with icon navigation.
   - `src/components/layout/MobileNav.tsx`: Responsive drawer with hamburger menu.
   - `src/components/layout/Header.tsx`: Breadcrumb title and user profile menu pill.
   - `src/components/layout/PageShell.tsx`: Container for content padding, action buttons, and loading states.
-- [ ] Set up Client-Side Routing:
+- [x] Set up Client-Side Routing:
   - `/` (Dashboard)
   - `/leads` (Leads List & Management)
   - `/leads/:id` (Lead Detail View)
@@ -70,22 +70,22 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
   - `/reports` (Conversion & Pipeline Analytics)
   - `/login` (Authentication)
   - `*` (404 Not Found Page)
-- [ ] **Test & Verification**: `npm run build` passes with zero TypeScript errors; `npm run lint` passes. Test responsiveness at 375px and 1440px.
-- [ ] **Deployment & Live Check**: Push to GitHub, import to Vercel, verify responsive navigation on live preview URL.
-- [ ] **Exit Gate**: Clean responsive shell deployed and navigating smoothly on live URL.
+- [x] **Test & Verification**: `npm run build` passes with zero TypeScript errors; `npm run lint` passes. Test responsiveness at 375px and 1440px.
+- [x] **Deployment & Live Check**: Push to GitHub, import to Vercel, verify responsive navigation on live preview URL.
+- [x] **Exit Gate**: Clean responsive shell deployed and navigating smoothly on live URL.
 
 ### Phase 2: Supabase Client, Diagnostics & Configuration Shield
-- [ ] Install `@supabase/supabase-js`.
-- [ ] Create `src/lib/supabaseClient.ts` as a typed singleton.
-- [ ] Implement environment variable validation:
+- [x] Install `@supabase/supabase-js`.
+- [x] Create `src/lib/supabaseClient.ts` as a typed singleton.
+- [x] Implement environment variable validation:
   - Check presence of `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
   - Validate URL format and key structure.
-- [ ] Create `src/components/common/EnvWarningBanner.tsx`:
+- [x] Create `src/components/common/EnvWarningBanner.tsx` / `src/components/common/ConfigShield.tsx` & `ConnectionStatusPill.tsx`:
   - Displays user-friendly diagnostics if keys are missing or invalid.
   - Provides clear instructions without crashing the app or pretending mock data is real.
-- [ ] **Test & Verification**: Verify app shows setup guidance when `.env` is missing; verify client connects when valid format is provided.
-- [ ] **Deployment & Live Check**: Push to GitHub, build on Vercel, verify live preview handles missing env gracefully.
-- [ ] **Exit Gate**: Singleton Supabase client ready; zero silent mock fallbacks.
+- [x] **Test & Verification**: Verify app shows setup guidance when `.env` is missing; verify client connects when valid format is provided.
+- [x] **Deployment & Live Check**: Push to GitHub, build on Vercel, verify live preview handles missing env gracefully.
+- [x] **Exit Gate**: Singleton Supabase client ready; zero silent mock fallbacks.
 
 ### Phase 3: PostgreSQL Database Schema, Migrations & RLS Security
 - [ ] Author `supabase/migrations/001_initial_schema.sql`:
