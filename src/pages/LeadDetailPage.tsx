@@ -9,10 +9,25 @@ import { PageShell } from '../components/layout/PageShell';
 import { ConfigShield } from '../components/common/ConfigShield';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
 import { leadsService } from '../services/leadsService';
-import type { LeadWithAssignee, CreateLeadInput, UpdateLeadInput, LeadStatus, Profile } from '../types/database';
+import { followUpsService } from '../services/followUpsService';
+import { activitiesService } from '../services/activitiesService';
+import type {
+  LeadWithAssignee,
+  CreateLeadInput,
+  UpdateLeadInput,
+  LeadStatus,
+  Profile,
+  FollowUpWithLead,
+  ActivityWithActor,
+  ActivityType,
+  CreateFollowUpInput,
+} from '../types/database';
 import { LeadStatusBadge, LeadSourceBadge } from '../components/common/StatusBadge';
 import { LeadModal } from '../features/leads/LeadModal';
 import { LostReasonModal } from '../features/leads/LostReasonModal';
+import { FollowUpCard } from '../features/followups/FollowUpCard';
+import { FollowUpModal } from '../features/followups/FollowUpModal';
+import { ActivityTimeline } from '../features/activities/ActivityTimeline';
 import {
   ArrowLeft,
   Phone,
@@ -27,6 +42,8 @@ import {
   AlertCircle,
   FileText,
   Clock,
+  CalendarClock,
+  Plus,
 } from 'lucide-react';
 import { useAuth } from '../features/auth/useAuth';
 
@@ -38,12 +55,16 @@ export const LeadDetailPage: React.FC = () => {
 
   const [lead, setLead] = useState<LeadWithAssignee | null>(null);
   const [staffList, setStaffList] = useState<Profile[]>([]);
+  const [followUps, setFollowUps] = useState<FollowUpWithLead[]>([]);
+  const [activities, setActivities] = useState<ActivityWithActor[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingActivities, setLoadingActivities] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLostModalOpen, setIsLostModalOpen] = useState(false);
+  const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
 
   const loadLeadData = useCallback(async () => {
     if (!id || !isSupabaseConfigured) return;
@@ -63,6 +84,29 @@ export const LeadDetailPage: React.FC = () => {
     }
   }, [id]);
 
+  const loadFollowUps = useCallback(async () => {
+    if (!id || !isSupabaseConfigured) return;
+    try {
+      const data = await followUpsService.getFollowUpsForLead(id);
+      setFollowUps(data);
+    } catch (err) {
+      console.error('Failed to load follow-ups for lead:', err);
+    }
+  }, [id]);
+
+  const loadActivities = useCallback(async () => {
+    if (!id || !isSupabaseConfigured) return;
+    try {
+      setLoadingActivities(true);
+      const data = await activitiesService.getActivitiesForLead(id);
+      setActivities(data);
+    } catch (err) {
+      console.error('Failed to load activities for lead:', err);
+    } finally {
+      setLoadingActivities(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     async function init() {
       if (!isSupabaseConfigured) return;
@@ -72,15 +116,15 @@ export const LeadDetailPage: React.FC = () => {
       } catch (e) {
         console.warn('Unable to load staff profiles:', e);
       }
-      await loadLeadData();
+      await Promise.all([loadLeadData(), loadFollowUps(), loadActivities()]);
     }
     init();
-  }, [loadLeadData]);
+  }, [loadLeadData, loadFollowUps, loadActivities]);
 
   const handleUpdate = async (data: CreateLeadInput | UpdateLeadInput) => {
     if (!id || !lead) return;
     await leadsService.updateLead(id, data as UpdateLeadInput, user?.id, lead.status);
-    await loadLeadData();
+    await Promise.all([loadLeadData(), loadActivities()]);
   };
 
   const handleQuickStatusChange = async (newStatus: LeadStatus) => {
@@ -93,7 +137,7 @@ export const LeadDetailPage: React.FC = () => {
 
     try {
       await leadsService.updateLead(id, { status: newStatus }, user?.id, lead.status);
-      await loadLeadData();
+      await Promise.all([loadLeadData(), loadActivities()]);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to update status.');
     }
@@ -102,7 +146,40 @@ export const LeadDetailPage: React.FC = () => {
   const handleConfirmLost = async (reason: string) => {
     if (!id || !lead) return;
     await leadsService.updateLead(id, { status: 'Lost', lost_reason: reason }, user?.id, lead.status);
-    await loadLeadData();
+    await Promise.all([loadLeadData(), loadActivities()]);
+  };
+
+  const handleScheduleFollowUp = async (data: CreateFollowUpInput) => {
+    await followUpsService.createFollowUp(data, user?.id);
+    await Promise.all([loadFollowUps(), loadActivities()]);
+  };
+
+  const handleCompleteFollowUp = async (followUpId: string, note?: string) => {
+    await followUpsService.markComplete(followUpId, user?.id, id, note);
+    await Promise.all([loadFollowUps(), loadActivities()]);
+  };
+
+  const handleCancelFollowUp = async (followUpId: string) => {
+    await followUpsService.cancelFollowUp(followUpId);
+    await loadFollowUps();
+  };
+
+  const handleDeleteFollowUp = async (followUpId: string) => {
+    await followUpsService.deleteFollowUp(followUpId);
+    await loadFollowUps();
+  };
+
+  const handleLogActivity = async (activityType: ActivityType, description: string) => {
+    if (!id) return;
+    await activitiesService.logActivity(
+      {
+        lead_id: id,
+        activity_type: activityType,
+        description,
+      },
+      user?.id
+    );
+    await loadActivities();
   };
 
   const handleDelete = async () => {
@@ -453,6 +530,65 @@ export const LeadDetailPage: React.FC = () => {
         )}
       </div>
 
+      {/* Follow-up Tasks Section */}
+      <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--slate-900)' }}>
+              Follow-up Tasks & Reminders
+            </h2>
+            <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginTop: '2px' }}>
+              Planned calls, demo sessions, and parent consultations for {lead.full_name}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsFollowUpModalOpen(true)}
+            className="btn btn-primary btn-sm"
+            style={{ gap: '6px' }}
+          >
+            <Plus size={14} />
+            <span>Schedule Follow-up</span>
+          </button>
+        </div>
+
+        {followUps.length === 0 ? (
+          <div style={{ padding: '28px 16px', textAlign: 'center', backgroundColor: 'var(--slate-50)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-100)' }}>
+            <CalendarClock size={28} color="var(--slate-300)" style={{ margin: '0 auto 8px' }} />
+            <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-700)' }}>
+              No follow-up tasks currently scheduled
+            </p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)', marginTop: '2px' }}>
+              Plan your next interaction or call reminder to advance this enquiry.
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '14px' }}>
+            {followUps.map((fu) => (
+              <FollowUpCard
+                key={fu.id}
+                followUp={fu}
+                onComplete={handleCompleteFollowUp}
+                onCancel={handleCancelFollowUp}
+                onDelete={handleDeleteFollowUp}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Activity Timeline Section */}
+      <div style={{ marginBottom: '24px' }}>
+        <ActivityTimeline
+          activities={activities}
+          leadId={lead.id}
+          leadName={lead.full_name}
+          onLogActivity={handleLogActivity}
+          loading={loadingActivities}
+        />
+      </div>
+
       {/* Edit Modal */}
       <LeadModal
         isOpen={isEditModalOpen}
@@ -468,6 +604,16 @@ export const LeadDetailPage: React.FC = () => {
         leadName={lead.full_name}
         onConfirm={handleConfirmLost}
         onClose={() => setIsLostModalOpen(false)}
+      />
+
+      {/* Schedule FollowUp Modal */}
+      <FollowUpModal
+        isOpen={isFollowUpModalOpen}
+        preselectedLeadId={lead.id}
+        preselectedLeadName={lead.full_name}
+        staffList={staffList}
+        onSave={handleScheduleFollowUp}
+        onClose={() => setIsFollowUpModalOpen(false)}
       />
     </PageShell>
   );

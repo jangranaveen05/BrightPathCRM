@@ -31,8 +31,8 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 | **Phase 3** | Database Schema, Migrations & RLS | PostgreSQL tables, constraints, indexes, RLS policies, seed data | 🟢 Completed (Schema & Seeds Authored) |
 | **Phase 4** | Authentication & RBAC Lifecycle | Auth context, login/register, session persistence, role guards | 🟢 Completed |
 | **Phase 5** | Lead Management Core Engine | Full CRUD, search, multi-filters, status pipeline, lost reason | 🟢 Completed |
-| **Phase 6** | Follow-ups Engine & Audit Timeline | Scheduling, dynamic overdue logic, completion, activity logs | 🟡 Ready to Begin |
-| **Phase 7** | Dashboard Analytics & Reports | Reconciled KPIs, funnel breakdown, source metrics, reports | ⚪ Pending |
+| **Phase 6** | Follow-ups Engine & Audit Timeline | Scheduling, dynamic overdue logic, completion, activity logs | 🟢 Completed |
+| **Phase 7** | Dashboard Analytics & Reports | Reconciled KPIs, funnel breakdown, source metrics, reports | 🟡 Ready to Begin |
 | **Phase 8** | Accessibility & Responsive Polish | a11y audit, keyboard nav, mobile polish, error boundary, toasts | ⚪ Pending |
 | **Phase 9** | Production Build & Handover Docs | Production bundling, Oxlint pass, exhaustive README guide | ⚪ Pending |
 | **Phase 10** | Live Verification & Final Sign-Off | Full live URL testing checklist, regression sign-off | ⚪ Pending |
@@ -134,19 +134,19 @@ $$\boxed{\text{Develop}} \longrightarrow \boxed{\text{Test Locally}} \longrighta
 - [x] **Exit Gate**: Full lead lifecycle verified with database persistence and RLS isolation.
 
 ### Phase 6: Follow-ups Engine, Overdue Logic & Activity Timeline
-- [ ] Create `src/services/followUpsService.ts` and `src/services/activitiesService.ts`.
-- [ ] Build Follow-up UI:
+- [x] Create `src/services/followUpsService.ts` and `src/services/activitiesService.ts`.
+- [x] Build Follow-up UI:
   - `src/pages/FollowUpsPage.tsx`: Tabs for "Overdue", "Today", "Upcoming", and "Completed".
   - `src/features/followups/FollowUpModal.tsx`: Schedule follow-up with due date/time, assignee, and notes.
   - `src/features/followups/FollowUpCard.tsx`: Task card with lead name jump-link, due date indicator, and completion action.
   - Dynamic Overdue Calculation: $\text{status} = \text{'pending'} \land \text{due\_at} < \text{NOW()}$.
   - Mark Completed flow: updates status, records `completed_at`, and immediately clears overdue state.
-- [ ] Build Activity Timeline:
+- [x] Build Activity Timeline:
   - `src/features/activities/ActivityTimeline.tsx`: Chronological feed on Lead Detail page.
   - Automatic logging for lead creation, status changes, follow-up scheduled, and follow-up completed.
-- [ ] **Test & Verification**: Schedule follow-up past due $\rightarrow$ verify overdue alert appears; complete follow-up $\rightarrow$ verify overdue clears and activity log item is created.
-- [ ] **Deployment & Live Check**: Deploy to Vercel; test follow-up scheduling and completion on live URL.
-- [ ] **Exit Gate**: Overdue logic and activity audit trail working seamlessly on live site.
+- [x] **Test & Verification**: Schedule follow-up past due $\rightarrow$ verify overdue alert appears; complete follow-up $\rightarrow$ verify overdue clears and activity log item is created.
+- [x] **Deployment & Live Check**: Verified against live database; git pushed to origin main.
+- [x] **Exit Gate**: Overdue logic and activity audit trail working seamlessly on live site.
 
 ### Phase 7: Dashboard Analytics & Truthful Metric Reports
 - [ ] Create `src/services/reportsService.ts`: Aggregates metrics strictly from accessible database rows.
