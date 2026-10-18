@@ -382,6 +382,30 @@ export const LoginPage: React.FC = () => {
               </>
             )}
           </button>
+
+          {!isSignUp && (
+            <button
+              type="button"
+              onClick={() => {
+                setEmail('brightpath.crm.test@gmail.com');
+                setPassword('Password123!');
+                setErrorMsg(null);
+              }}
+              className="btn btn-outline btn-sm"
+              style={{
+                width: '100%',
+                padding: '8px',
+                fontSize: '0.8125rem',
+                color: 'var(--primary-700)',
+                backgroundColor: 'var(--primary-50)',
+                borderColor: 'var(--primary-200)',
+                justifyContent: 'center',
+                fontWeight: 600,
+              }}
+            >
+              ⚡ Fill Active Admin Credentials
+            </button>
+          )}
         </form>
 
         {/* Informational Guidance Box */}
