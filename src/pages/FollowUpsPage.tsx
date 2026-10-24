@@ -25,11 +25,13 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '../features/auth/useAuth';
+import { useToast } from '../components/common/useToast';
 
 type TabKey = 'overdue' | 'today' | 'upcoming' | 'completed' | 'all';
 
 export const FollowUpsPage: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
 
   const [followUps, setFollowUps] = useState<FollowUpWithLead[]>([]);
   const [counts, setCounts] = useState<FollowUpCounts>({
@@ -107,9 +109,12 @@ export const FollowUpsPage: React.FC = () => {
   const handleComplete = async (id: string, note?: string) => {
     try {
       await followUpsService.markComplete(id, user?.id, undefined, note);
+      toast.success('Follow-up Completed', 'Task marked completed and logged in activity feed.');
       await loadData();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to complete task.');
+      const msg = err instanceof Error ? err.message : 'Failed to complete task.';
+      setErrorMsg(msg);
+      toast.error('Completion Failed', msg);
     }
   };
 
@@ -117,9 +122,12 @@ export const FollowUpsPage: React.FC = () => {
   const handleCancel = async (id: string) => {
     try {
       await followUpsService.cancelFollowUp(id);
+      toast.info('Follow-up Cancelled', 'Task has been cancelled.');
       await loadData();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to cancel task.');
+      const msg = err instanceof Error ? err.message : 'Failed to cancel task.';
+      setErrorMsg(msg);
+      toast.error('Cancel Failed', msg);
     }
   };
 
@@ -127,16 +135,26 @@ export const FollowUpsPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await followUpsService.deleteFollowUp(id);
+      toast.info('Follow-up Deleted', 'Task removed from schedule.');
       await loadData();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete task.');
+      const msg = err instanceof Error ? err.message : 'Failed to delete task.';
+      setErrorMsg(msg);
+      toast.error('Delete Failed', msg);
     }
   };
 
   // Handle Schedule Save
   const handleSaveFollowUp = async (data: CreateFollowUpInput) => {
-    await followUpsService.createFollowUp(data, user?.id);
-    await loadData();
+    try {
+      await followUpsService.createFollowUp(data, user?.id);
+      toast.success('Follow-up Scheduled', 'Task successfully scheduled.');
+      await loadData();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to schedule follow-up.';
+      setErrorMsg(msg);
+      toast.error('Scheduling Failed', msg);
+    }
   };
 
   if (!isSupabaseConfigured) {

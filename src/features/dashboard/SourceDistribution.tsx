@@ -24,9 +24,9 @@ export const SourceDistribution: React.FC<SourceDistributionProps> = ({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Compass size={18} color="var(--primary-600)" />
-          <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
+          <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
             Acquisition Channels
-          </h3>
+          </h2>
         </div>
         <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>
           Lead Sources

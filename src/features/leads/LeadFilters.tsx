@@ -57,37 +57,44 @@ export const LeadFilters: React.FC<LeadFiltersProps> = ({
         }}
       >
         {/* Search Input */}
-        <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
+        <div style={{ position: 'relative', flex: '1 1 240px', minWidth: '220px' }}>
           <Search
             size={16}
-            color="var(--slate-400)"
+            color="var(--slate-500)"
             style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}
           />
           <input
             type="text"
             className="input"
+            aria-label="Search student enquiries by name, phone, email, or course"
             placeholder="Search student name, phone, email, or course..."
             value={filters.search || ''}
             onChange={(e) => onChange({ ...filters, search: e.target.value })}
-            style={{ paddingLeft: '36px', paddingRight: filters.search ? '32px' : '12px' }}
+            style={{ paddingLeft: '36px', paddingRight: filters.search ? '36px' : '12px' }}
           />
           {filters.search && (
             <button
               type="button"
               onClick={() => onChange({ ...filters, search: '' })}
+              aria-label="Clear search text"
               style={{
                 position: 'absolute',
-                right: '10px',
+                right: '4px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                color: 'var(--slate-400)',
-                padding: '2px',
+                color: 'var(--slate-500)',
+                padding: '8px',
+                minWidth: '32px',
+                minHeight: '32px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              <X size={14} />
+              <X size={15} />
             </button>
           )}
         </div>

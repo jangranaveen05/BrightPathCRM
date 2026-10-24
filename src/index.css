@@ -213,12 +213,51 @@ a {
   min-width: 0;
 }
 
+/* Accessibility Focus Rings (WCAG 2.4.7 & 1.4.11) */
+:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
+
+.mobile-menu-btn {
+  display: none;
+}
+
+.sidebar-mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--navy-950);
+  color: var(--slate-300);
+}
+
 @media (max-width: 768px) {
   .sidebar-desktop {
-    display: none;
+    display: none !important;
   }
   .main-wrapper {
-    margin-left: 0;
+    margin-left: 0 !important;
+  }
+  .mobile-menu-btn {
+    display: inline-flex !important;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .app-header {
+    padding: 0 16px;
+  }
+  .header-breadcrumb-prefix {
+    display: none !important;
   }
 }
 
@@ -487,3 +526,57 @@ a {
   overflow: hidden;
   animation: slideUp var(--duration-normal) var(--ease-spring);
 }
+
+/* ==========================================================================
+   Responsive Table-to-Card Transformations & Mobile Utilities
+   ========================================================================== */
+
+.table-desktop-view {
+  display: block;
+}
+
+.table-mobile-view {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .table-desktop-view {
+    display: none !important;
+  }
+  .table-mobile-view {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* Mobile Touch Target Standards (WCAG 2.5.5 >= 44x44px) */
+.touch-target-44 {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (max-width: 640px) {
+  .btn {
+    min-height: 40px;
+  }
+  .btn-sm {
+    min-height: 36px;
+  }
+  .input, .select, .textarea {
+    min-height: 42px;
+    font-size: 16px; /* Prevents unwanted auto-zoom on iOS Safari */
+  }
+}
+
+/* Toast Mobile Positioning */
+@media (max-width: 480px) {
+  .toast-viewport {
+    top: 12px !important;
+    right: 12px !important;
+    left: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}
+

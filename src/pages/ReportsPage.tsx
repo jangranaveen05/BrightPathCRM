@@ -27,8 +27,10 @@ import {
   BarChart2,
   Shield,
 } from 'lucide-react';
+import { useToast } from '../components/common/useToast';
 
 export const ReportsPage: React.FC = () => {
+  const toast = useToast();
   const [leads, setLeads] = useState<LeadWithAssignee[]>([]);
   const [counsellors, setCounsellors] = useState<CounsellorMetric[]>([]);
   const [loading, setLoading] = useState<boolean>(() => isSupabaseConfigured);
@@ -67,7 +69,12 @@ export const ReportsPage: React.FC = () => {
   }, [fetchReports]);
 
   const handleExportCsv = () => {
-    reportsService.exportLeadsToCsv(leads);
+    try {
+      reportsService.exportLeadsToCsv(leads);
+      toast.success('CSV Export Generated', `Exported ${leads.length} student leads to spreadsheet.`);
+    } catch {
+      toast.error('Export Failed', 'Unable to generate CSV export.');
+    }
   };
 
   if (!isSupabaseConfigured) {
@@ -289,9 +296,9 @@ export const ReportsPage: React.FC = () => {
         <div className="card-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Shield size={16} color="var(--primary-600)" />
-            <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
+            <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
               Counsellor Team Performance & Allocation
-            </h3>
+            </h2>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>
             {counsellors.length} active staff
@@ -360,9 +367,9 @@ export const ReportsPage: React.FC = () => {
         <div className="card-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <BarChart2 size={16} color="var(--primary-600)" />
-            <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
+            <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
               Acquisition Channel ROI & Performance
-            </h3>
+            </h2>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>
             Channel efficiency

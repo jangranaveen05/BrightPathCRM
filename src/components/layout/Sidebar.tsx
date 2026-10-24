@@ -12,9 +12,10 @@ import {
 
 interface SidebarProps {
   onCloseMobile?: () => void;
+  isMobile?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile, isMobile = false }) => {
   const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/leads', label: 'Leads Pipeline', icon: Users },
@@ -23,7 +24,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   ];
 
   return (
-    <aside className="sidebar-desktop" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <aside
+      className={isMobile ? 'sidebar-mobile' : 'sidebar-desktop'}
+      style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+    >
       {/* Brand Header */}
       <div
         style={{

@@ -29,9 +29,11 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
+import { useToast } from '../components/common/useToast';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
 
   const [leads, setLeads] = useState<LeadWithAssignee[]>([]);
   const [kpis, setKpis] = useState<DashboardKPIs>({
@@ -86,8 +88,14 @@ export const DashboardPage: React.FC = () => {
   }, [fetchDashboardData]);
 
   const handleCompleteFollowUp = async (id: string) => {
-    await followUpsService.markComplete(id, user?.id);
-    await fetchDashboardData();
+    try {
+      await followUpsService.markComplete(id, user?.id);
+      toast.success('Follow-up Completed', 'Overdue task marked complete and removed from urgent list.');
+      await fetchDashboardData();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to complete urgent task.';
+      toast.error('Completion Failed', msg);
+    }
   };
 
   if (!isSupabaseConfigured) {

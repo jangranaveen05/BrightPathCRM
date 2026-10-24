@@ -46,11 +46,13 @@ import {
   Plus,
 } from 'lucide-react';
 import { useAuth } from '../features/auth/useAuth';
+import { useToast } from '../components/common/useToast';
 
 export const LeadDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, role } = useAuth();
+  const toast = useToast();
   const canDelete = role === 'admin' || role === 'manager';
 
   const [lead, setLead] = useState<LeadWithAssignee | null>(null);
@@ -137,49 +139,88 @@ export const LeadDetailPage: React.FC = () => {
 
     try {
       await leadsService.updateLead(id, { status: newStatus }, user?.id, lead.status);
+      toast.success('Status Updated', `Enquiry stage moved to ${newStatus}.`);
       await Promise.all([loadLeadData(), loadActivities()]);
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to update status.');
+      const msg = err instanceof Error ? err.message : 'Failed to update status.';
+      setErrorMsg(msg);
+      toast.error('Update Failed', msg);
     }
   };
 
   const handleConfirmLost = async (reason: string) => {
     if (!id || !lead) return;
-    await leadsService.updateLead(id, { status: 'Lost', lost_reason: reason }, user?.id, lead.status);
-    await Promise.all([loadLeadData(), loadActivities()]);
+    try {
+      await leadsService.updateLead(id, { status: 'Lost', lost_reason: reason }, user?.id, lead.status);
+      toast.warning('Enquiry Marked as Lost', 'Lost rationale recorded in audit feed.');
+      await Promise.all([loadLeadData(), loadActivities()]);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to record lost reason.';
+      toast.error('Operation Failed', msg);
+    }
   };
 
   const handleScheduleFollowUp = async (data: CreateFollowUpInput) => {
-    await followUpsService.createFollowUp(data, user?.id);
-    await Promise.all([loadFollowUps(), loadActivities()]);
+    try {
+      await followUpsService.createFollowUp(data, user?.id);
+      toast.success('Follow-up Scheduled', 'New task added to follow-up schedule.');
+      await Promise.all([loadFollowUps(), loadActivities()]);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to schedule follow-up.';
+      toast.error('Scheduling Failed', msg);
+    }
   };
 
   const handleCompleteFollowUp = async (followUpId: string, note?: string) => {
-    await followUpsService.markComplete(followUpId, user?.id, id, note);
-    await Promise.all([loadFollowUps(), loadActivities()]);
+    try {
+      await followUpsService.markComplete(followUpId, user?.id, id, note);
+      toast.success('Follow-up Completed', 'Interaction logged into activity audit trail.');
+      await Promise.all([loadFollowUps(), loadActivities()]);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to mark follow-up completed.';
+      toast.error('Completion Failed', msg);
+    }
   };
 
   const handleCancelFollowUp = async (followUpId: string) => {
-    await followUpsService.cancelFollowUp(followUpId);
-    await loadFollowUps();
+    try {
+      await followUpsService.cancelFollowUp(followUpId);
+      toast.info('Follow-up Cancelled', 'Task has been cancelled.');
+      await loadFollowUps();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to cancel follow-up.';
+      toast.error('Cancel Failed', msg);
+    }
   };
 
   const handleDeleteFollowUp = async (followUpId: string) => {
-    await followUpsService.deleteFollowUp(followUpId);
-    await loadFollowUps();
+    try {
+      await followUpsService.deleteFollowUp(followUpId);
+      toast.info('Follow-up Deleted', 'Task removed from database.');
+      await loadFollowUps();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete follow-up.';
+      toast.error('Delete Failed', msg);
+    }
   };
 
   const handleLogActivity = async (activityType: ActivityType, description: string) => {
     if (!id) return;
-    await activitiesService.logActivity(
-      {
-        lead_id: id,
-        activity_type: activityType,
-        description,
-      },
-      user?.id
-    );
-    await loadActivities();
+    try {
+      await activitiesService.logActivity(
+        {
+          lead_id: id,
+          activity_type: activityType,
+          description,
+        },
+        user?.id
+      );
+      toast.success('Activity Logged', 'Manual note recorded on student timeline.');
+      await loadActivities();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to log activity.';
+      toast.error('Logging Failed', msg);
+    }
   };
 
   const handleDelete = async () => {
@@ -191,9 +232,12 @@ export const LeadDetailPage: React.FC = () => {
 
     try {
       await leadsService.deleteLead(id);
+      toast.info('Enquiry Deleted', `Permanently deleted "${lead.full_name}".`);
       navigate('/leads');
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete lead.');
+      const msg = err instanceof Error ? err.message : 'Failed to delete lead.';
+      setErrorMsg(msg);
+      toast.error('Delete Failed', msg);
     }
   };
 
@@ -303,9 +347,9 @@ export const LeadDetailPage: React.FC = () => {
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
+                <h2 style={{ fontSize: '1.375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
                   {lead.full_name}
-                </h1>
+                </h2>
                 <LeadStatusBadge status={lead.status} />
               </div>
               <p style={{ fontSize: '0.875rem', color: 'var(--slate-500)', marginTop: '4px' }}>

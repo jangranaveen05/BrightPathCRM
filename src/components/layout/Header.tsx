@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { ConnectionStatusPill } from '../common/ConnectionStatusPill';
 import { useAuth } from '../../features/auth/useAuth';
+import { useToast } from '../common/useToast';
 import type { UserRole } from '../../types/database';
 
 interface HeaderProps {
@@ -26,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile, role, signOut, refreshProfile } = useAuth();
+  const toast = useToast();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -57,13 +59,20 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
   const handleSignOut = async () => {
     setMenuOpen(false);
     await signOut();
+    toast.info('Signed Out', 'You have been safely signed out of BrightPath CRM.');
     navigate('/login');
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await refreshProfile();
-    setTimeout(() => setIsRefreshing(false), 600);
+    try {
+      await refreshProfile();
+      toast.success('Profile Refreshed', 'Staff role and profile details updated from database.');
+    } catch {
+      toast.error('Refresh Failed', 'Unable to refresh profile status.');
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 600);
+    }
   };
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Staff User';
@@ -113,24 +122,29 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
   return (
     <header className="app-header">
       {/* Left: Mobile Toggle + Breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button
           type="button"
           onClick={onOpenMobileNav}
           className="btn btn-outline btn-sm mobile-menu-btn"
           style={{
-            display: 'none',
-            padding: '6px',
+            padding: '8px',
             color: 'var(--slate-700)',
+            minWidth: '42px',
+            minHeight: '42px',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
           aria-label="Open Navigation Menu"
         >
-          <Menu size={18} />
+          <Menu size={20} />
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem' }}>
-          <span style={{ color: 'var(--slate-400)', fontWeight: 500 }}>BrightPath</span>
-          <ChevronRight size={14} style={{ color: 'var(--slate-300)' }} />
+          <span className="header-breadcrumb-prefix" style={{ color: 'var(--slate-500)', fontWeight: 500 }}>
+            BrightPath
+          </span>
+          <ChevronRight size={14} className="header-breadcrumb-prefix" style={{ color: 'var(--slate-400)' }} />
           <span style={{ color: 'var(--slate-900)', fontWeight: 600 }}>{title}</span>
         </div>
       </div>

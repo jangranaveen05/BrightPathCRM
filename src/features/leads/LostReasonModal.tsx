@@ -3,7 +3,7 @@
 // Mandatory dialog enforcing rationale before transitioning lead status to Lost
 // ==============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, X, Check, Loader2 } from 'lucide-react';
 
 interface LostReasonModalProps {
@@ -30,6 +30,18 @@ export const LostReasonModal: React.FC<LostReasonModalProps> = ({
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Escape key close handler
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmitting) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose, isSubmitting]);
 
   if (!isOpen) return null;
 
@@ -69,6 +81,11 @@ export const LostReasonModal: React.FC<LostReasonModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="lost-modal-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isSubmitting) {
+          onClose();
+        }
+      }}
     >
       <div
         className="card animate-scale-up"
@@ -125,9 +142,19 @@ export const LostReasonModal: React.FC<LostReasonModalProps> = ({
             onClick={onClose}
             disabled={isSubmitting}
             className="btn btn-outline btn-sm"
-            style={{ padding: '6px', border: 'none', background: 'transparent' }}
+            style={{
+              padding: '8px',
+              border: 'none',
+              background: 'transparent',
+              minWidth: '40px',
+              minHeight: '40px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            aria-label="Close dialog"
           >
-            <X size={16} color="var(--slate-500)" />
+            <X size={18} color="var(--slate-500)" />
           </button>
         </div>
 

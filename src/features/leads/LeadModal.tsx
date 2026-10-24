@@ -3,7 +3,7 @@
 // Accessible dialog for capturing new enquiries and editing existing leads
 // ==============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, UserPlus, Save, Loader2, AlertCircle } from 'lucide-react';
 import type {
   LeadWithAssignee,
@@ -62,6 +62,17 @@ const LeadModalDialog: React.FC<LeadModalDialogProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Keyboard navigation: Escape key closes modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmitting) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, isSubmitting]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,6 +135,11 @@ const LeadModalDialog: React.FC<LeadModalDialogProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="lead-modal-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isSubmitting) {
+          onClose();
+        }
+      }}
     >
       <div
         className="card animate-scale-up"
@@ -179,9 +195,19 @@ const LeadModalDialog: React.FC<LeadModalDialogProps> = ({
             onClick={onClose}
             disabled={isSubmitting}
             className="btn btn-outline btn-sm"
-            style={{ padding: '6px', border: 'none', background: 'transparent' }}
+            style={{
+              padding: '8px',
+              border: 'none',
+              background: 'transparent',
+              minWidth: '40px',
+              minHeight: '40px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            aria-label="Close dialog"
           >
-            <X size={16} color="var(--slate-500)" />
+            <X size={18} color="var(--slate-500)" />
           </button>
         </div>
 

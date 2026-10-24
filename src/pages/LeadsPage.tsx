@@ -15,9 +15,11 @@ import { LeadModal } from '../features/leads/LeadModal';
 import { LostReasonModal } from '../features/leads/LostReasonModal';
 import { Plus, RefreshCw, AlertCircle } from 'lucide-react';
 import { useAuth } from '../features/auth/useAuth';
+import { useToast } from '../components/common/useToast';
 
 export const LeadsPage: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
 
   const [leads, setLeads] = useState<LeadWithAssignee[]>([]);
   const [staffList, setStaffList] = useState<Profile[]>([]);
@@ -87,12 +89,20 @@ export const LeadsPage: React.FC = () => {
 
   // Handle Save (Create or Update)
   const handleSaveLead = async (data: CreateLeadInput | UpdateLeadInput) => {
-    if (editingLead) {
-      await leadsService.updateLead(editingLead.id, data as UpdateLeadInput, user?.id, editingLead.status);
-    } else {
-      await leadsService.createLead(data as CreateLeadInput, user?.id);
+    try {
+      if (editingLead) {
+        await leadsService.updateLead(editingLead.id, data as UpdateLeadInput, user?.id, editingLead.status);
+        toast.success('Enquiry Updated', `Saved changes for "${data.full_name || editingLead.full_name}".`);
+      } else {
+        await leadsService.createLead(data as CreateLeadInput, user?.id);
+        toast.success('Enquiry Created', `Added "${data.full_name}" to the admissions pipeline.`);
+      }
+      await loadLeads();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save lead record.';
+      toast.error('Save Failed', msg);
+      throw err;
     }
-    await loadLeads();
   };
 
   // Handle Status Transition from Table
@@ -108,22 +118,32 @@ export const LeadsPage: React.FC = () => {
 
     try {
       await leadsService.updateLead(lead.id, { status: newStatus }, user?.id, lead.status);
+      toast.success('Status Updated', `Moved "${lead.full_name}" to ${newStatus}.`);
       await loadLeads();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to update status.');
+      const msg = err instanceof Error ? err.message : 'Failed to update status.';
+      setErrorMsg(msg);
+      toast.error('Status Update Failed', msg);
     }
   };
 
   // Confirm Lost Status with Reason
   const handleConfirmLost = async (reason: string) => {
     if (!leadPendingLost) return;
-    await leadsService.updateLead(
-      leadPendingLost.id,
-      { status: 'Lost', lost_reason: reason },
-      user?.id,
-      leadPendingLost.status
-    );
-    await loadLeads();
+    try {
+      await leadsService.updateLead(
+        leadPendingLost.id,
+        { status: 'Lost', lost_reason: reason },
+        user?.id,
+        leadPendingLost.status
+      );
+      toast.warning('Enquiry Marked as Lost', `Reason logged for "${leadPendingLost.full_name}".`);
+      await loadLeads();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update lost status.';
+      toast.error('Update Failed', msg);
+      throw err;
+    }
   };
 
   // Handle Delete Lead
@@ -135,9 +155,12 @@ export const LeadsPage: React.FC = () => {
 
     try {
       await leadsService.deleteLead(lead.id);
+      toast.info('Enquiry Deleted', `Removed "${lead.full_name}" from database.`);
       await loadLeads();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete lead.');
+      const msg = err instanceof Error ? err.message : 'Failed to delete lead.';
+      setErrorMsg(msg);
+      toast.error('Delete Failed', msg);
     }
   };
 

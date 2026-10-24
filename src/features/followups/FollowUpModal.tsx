@@ -3,7 +3,7 @@
 // Accessible dialog for scheduling follow-up interactions with prospective students
 // ==============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   CalendarClock,
@@ -75,6 +75,17 @@ const FollowUpModalDialog: React.FC<FollowUpModalDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Keyboard navigation: Escape key closes modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmitting) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, isSubmitting]);
+
   // Quick Preset Handlers
   const applyPresetTime = (preset: 'plus2h' | 'tomorrow10am' | 'plus3d' | 'nextWeek') => {
     const target = new Date();
@@ -143,6 +154,11 @@ const FollowUpModalDialog: React.FC<FollowUpModalDialogProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="followup-modal-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isSubmitting) {
+          onClose();
+        }
+      }}
     >
       <div
         className="card animate-scale-up"
@@ -198,9 +214,19 @@ const FollowUpModalDialog: React.FC<FollowUpModalDialogProps> = ({
             onClick={onClose}
             disabled={isSubmitting}
             className="btn btn-outline btn-sm"
-            style={{ padding: '6px', border: 'none', background: 'transparent' }}
+            style={{
+              padding: '8px',
+              border: 'none',
+              background: 'transparent',
+              minWidth: '40px',
+              minHeight: '40px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            aria-label="Close dialog"
           >
-            <X size={16} color="var(--slate-500)" />
+            <X size={18} color="var(--slate-500)" />
           </button>
         </div>
 

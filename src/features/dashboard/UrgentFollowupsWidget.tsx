@@ -44,9 +44,9 @@ export const UrgentFollowupsWidget: React.FC<UrgentFollowupsWidgetProps> = ({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <AlertCircle size={18} color="#e11d48" />
-          <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
+          <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--slate-900)' }}>
             Urgent Action Items
-          </h3>
+          </h2>
         </div>
 
         <Link

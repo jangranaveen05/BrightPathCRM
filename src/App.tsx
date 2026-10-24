@@ -4,6 +4,8 @@
 
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { ToastProvider } from './components/common/ToastContext';
 import { AuthProvider } from './features/auth/AuthContext';
 import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
@@ -17,8 +19,10 @@ import { NotFoundPage } from './pages/NotFoundPage';
 
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ToastProvider>
+          <BrowserRouter>
         <Routes>
           {/* Full screen public auth route */}
           <Route path="/login" element={<LoginPage />} />
@@ -41,7 +45,9 @@ export const App: React.FC = () => {
           </Route>
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
+        </ToastProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

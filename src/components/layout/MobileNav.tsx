@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, GraduationCap } from 'lucide-react';
 import { Sidebar } from './Sidebar';
 
@@ -8,10 +8,25 @@ interface MobileNavProps {
 }
 
 export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
+  // Close on Escape key press
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Mobile Navigation Menu"
       style={{
         position: 'fixed',
         inset: 0,
@@ -62,17 +77,27 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close navigation drawer"
             className="btn btn-ghost btn-sm"
-            style={{ color: 'var(--slate-400)', padding: '6px' }}
+            style={{
+              color: 'var(--slate-400)',
+              padding: '10px',
+              minWidth: '44px',
+              minHeight: '44px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
             <X size={20} />
           </button>
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          <Sidebar onCloseMobile={onClose} />
+          <Sidebar onCloseMobile={onClose} isMobile />
         </div>
       </div>
     </div>
   );
 };
+

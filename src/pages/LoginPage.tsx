@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
+import { useToast } from '../components/common/useToast';
 import { isSupabaseConfigured } from '../lib/supabaseClient';
 
 export const LoginPage: React.FC = () => {
@@ -30,6 +31,7 @@ export const LoginPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { signIn, signUp, isAuthenticated } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -56,9 +58,14 @@ export const LoginPage: React.FC = () => {
       });
       if (error) {
         setErrorMsg(error.message);
+        toast.error('Sign In Failed', error.message);
+      } else {
+        toast.success('Welcome Back', 'Signed in as Administrator.');
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Sign in failed');
+      const msg = err instanceof Error ? err.message : 'Sign in failed';
+      setErrorMsg(msg);
+      toast.error('Authentication Error', msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -107,6 +114,7 @@ export const LoginPage: React.FC = () => {
             );
           } else {
             setSuccessMsg('Account registered successfully! You may now sign in.');
+            toast.success('Registration Complete', 'Staff account created. You can now sign in.');
             setIsSignUp(false);
           }
         }
@@ -118,12 +126,16 @@ export const LoginPage: React.FC = () => {
 
         if (error) {
           setErrorMsg(error.message);
+          toast.error('Sign In Failed', error.message);
         } else {
+          toast.success('Welcome Back', 'Signed in successfully.');
           // Navigation handled by the isAuthenticated useEffect
         }
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'An unexpected error occurred.');
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      setErrorMsg(msg);
+      toast.error('Authentication Error', msg);
     } finally {
       setIsSubmitting(false);
     }
