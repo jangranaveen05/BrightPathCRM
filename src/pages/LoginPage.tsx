@@ -46,7 +46,7 @@ export const LoginPage: React.FC = () => {
   const handleOneClickAdminLogin = async () => {
     setIsSignUp(false);
     setEmail('brightpath.crm.test@gmail.com');
-    setPassword('Password123!');
+    setPassword('Password1!');
     setErrorMsg(null);
     setSuccessMsg(null);
     setIsSubmitting(true);
@@ -54,7 +54,7 @@ export const LoginPage: React.FC = () => {
     try {
       const { error } = await signIn({
         email: 'brightpath.crm.test@gmail.com',
-        password: 'Password123!',
+        password: 'Password1!',
       });
       if (error) {
         setErrorMsg(error.message);
@@ -70,6 +70,35 @@ export const LoginPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  const handleOneClickCounsellorLogin = async () => {
+    setIsSignUp(false);
+    setEmail('counsellor.test@brightpath.edu');
+    setPassword('Password1!');
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await signIn({
+        email: 'counsellor.test@brightpath.edu',
+        password: 'Password1!',
+      });
+      if (error) {
+        setErrorMsg(error.message);
+        toast.error('Sign In Failed', error.message);
+      } else {
+        toast.success('Welcome Back', 'Signed in as Counsellor.');
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Sign in failed';
+      setErrorMsg(msg);
+      toast.error('Authentication Error', msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -474,26 +503,58 @@ export const LoginPage: React.FC = () => {
             )}
           </button>
 
-          {/* 1-Click Instant Sign In as Admin */}
-          <button
-            type="button"
-            onClick={handleOneClickAdminLogin}
-            disabled={isSubmitting || !isSupabaseConfigured}
-            className="btn btn-outline btn-sm"
-            style={{
-              width: '100%',
-              padding: '9px 12px',
-              fontSize: '0.8125rem',
-              color: 'var(--primary-700)',
-              backgroundColor: 'var(--primary-50)',
-              borderColor: 'var(--primary-200)',
-              justifyContent: 'center',
-              fontWeight: 600,
-              gap: '6px',
-            }}
-          >
-            <span>🚀 1-Click Instant Sign In as Admin</span>
-          </button>
+          {/* 1-Click Test Users with Password: Password1! */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--slate-200)' }} />
+              <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Test Users (Password: Password1!)
+              </span>
+              <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--slate-200)' }} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={handleOneClickAdminLogin}
+                disabled={isSubmitting || !isSupabaseConfigured}
+                className="btn btn-outline btn-sm"
+                style={{
+                  padding: '8px 10px',
+                  fontSize: '0.75rem',
+                  color: 'var(--primary-700)',
+                  backgroundColor: 'var(--primary-50)',
+                  borderColor: 'var(--primary-200)',
+                  justifyContent: 'center',
+                  fontWeight: 600,
+                  gap: '4px',
+                }}
+                title="Sign in as Administrator (brightpath.crm.test@gmail.com)"
+              >
+                <span>👑 Admin User</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleOneClickCounsellorLogin}
+                disabled={isSubmitting || !isSupabaseConfigured}
+                className="btn btn-outline btn-sm"
+                style={{
+                  padding: '8px 10px',
+                  fontSize: '0.75rem',
+                  color: 'var(--slate-700)',
+                  backgroundColor: 'var(--slate-100)',
+                  borderColor: 'var(--slate-300)',
+                  justifyContent: 'center',
+                  fontWeight: 600,
+                  gap: '4px',
+                }}
+                title="Sign in as Counsellor (counsellor.test@brightpath.edu)"
+              >
+                <span>👥 Counsellor</span>
+              </button>
+            </div>
+          </div>
         </form>
 
         {/* Informational Guidance Box */}
