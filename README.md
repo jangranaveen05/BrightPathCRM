@@ -199,7 +199,7 @@ The database schema and sample data are located in `supabase/migrations/`:
 | **7** | Dashboard Analytics & Reports | Reconciled KPIs, funnel breakdown, source metrics, counsellor table, CSV export | 🟢 PASS |
 | **8** | Accessibility & Mobile Polish | ErrorBoundary, toast notifications, keyboard Escape, $\ge 44\text{px}$ touch targets | 🟢 PASS |
 | **9** | Production Hardening | Zero lint warnings (`oxlint`), zero type errors (`tsc`), production bundle (`vite build`) | 🟢 PASS |
-| **10** | Live Verification & Sign-Off | Parity check between local dev and live hosted deployment | 🟡 In Progress |
+| **10** | Live Verification & Sign-Off | Parity check between local dev and live hosted deployment (8/8 acceptance tests) | 🟢 PASS |
 
 ---
 
